@@ -1,393 +1,166 @@
-DROP DATABASE IF EXISTS  equipo_de_futbol_bastardmunchen; # Alan Diaz 
-CREATE DATABASE          equipo_de_futbol_bastardmunchen; # COMISION 53180
+DROP DATABASE IF EXISTS equipo_de_futbol_bastardmunchen;
+CREATE DATABASE equipo_de_futbol_bastardmunchen;
+USE equipo_de_futbol_bastardmunchen;
 
-USE                      equipo_de_futbol_bastardmunchen;
+-- Tabla de Equipos
+CREATE TABLE Equipos (
+    equipo_id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    pais VARCHAR(100) NOT NULL,
+    estadio VARCHAR(100) NOT NULL
+) COMMENT 'Contiene información básica de los equipos de fútbol';
 
-CREATE TABLE JUGADORES (
-		   JUGADORID             INT AUTO_INCREMENT PRIMARY KEY
-,          NOMBRE                VARCHAR(50)
-,          APELLIDO              VARCHAR(50)    
-,          POSICION              VARCHAR(50)
-,          HABILIDADESDESTACADAS VARCHAR(255)
-,          FECHANACIMIENTO       DATE
-,          NACIONALIDAD          VARCHAR(50)
-,          SALARIO               DECIMAL(10, 2)
-)
-COMMENT "CONTIENE INFORMACION BASICA DE LOS JUGADORES"
-;
-  
-  CREATE TABLE SUPLENTES (
-             SUPLENTEID            INT AUTO_INCREMENT PRIMARY KEY
-,            NOMBRE                VARCHAR(50)
-,            APELLIDO              VARCHAR(50)    
-,            POSICION              VARCHAR(50)
-,            HABILIDADESDESTACADAS VARCHAR(255) DEFAULT '(NO_INFO)'
-,            FECHANACIMIENTO       VARCHAR(10) DEFAULT '(NO_INFO)'
-,            NACIONALIDAD          VARCHAR(50) DEFAULT '(NO_INFO)'
-,            SALARIO               DECIMAL(10, 2) DEFAULT 0.00
-)
+-- Tabla de Jugadores
+CREATE TABLE Jugadores (
+    jugador_id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL,
+    apellido VARCHAR(50) NOT NULL,
+    posicion VARCHAR(50) NOT NULL,
+    habilidades_destacadas VARCHAR(255),
+    fecha_nacimiento DATE NOT NULL,
+    nacionalidad VARCHAR(50) NOT NULL,
+    salario DECIMAL(10, 2) NOT NULL,
+    equipo_id INT,
+    FOREIGN KEY (equipo_id) REFERENCES Equipos(equipo_id)
+) COMMENT 'Contiene información básica de los jugadores';
 
-COMMENT "CONTIENE INFORMACION BASICA DE LOS SUPLENTES"
-;
+-- Tabla de Suplentes
+CREATE TABLE Suplentes (
+    suplente_id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL,
+    apellido VARCHAR(50) NOT NULL,
+    posicion VARCHAR(50) NOT NULL,
+    habilidades_destacadas VARCHAR(255) DEFAULT '(NO_INFO)',
+    fecha_nacimiento DATE DEFAULT NULL,
+    nacionalidad VARCHAR(50) DEFAULT '(NO_INFO)',
+    salario DECIMAL(10, 2) DEFAULT 0.00,
+    equipo_id INT,
+    FOREIGN KEY (equipo_id) REFERENCES Equipos(equipo_id)
+) COMMENT 'Contiene información básica de los suplentes';
 
-CREATE TABLE HABILIDADESFUTBOLISTICAS (
-		   HABILIDADID      INT AUTO_INCREMENT PRIMARY KEY
-,          NOMBREHABILIDAD  VARCHAR(100)
-,          DESCRIPCION      VARCHAR(255)
-,          NIVEL            VARCHAR(100)
-)
-COMMENT "CONOCIMIENTOS DETALLADOS, HABILIDADES QUE TIENE LOS JUGADORES Y SU NIVEL"
-;
+-- Tabla de Entrenadores
+CREATE TABLE Entrenadores (
+    entrenador_id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL,
+    apellido VARCHAR(50) NOT NULL,
+    posicion VARCHAR(50),
+    fecha_nacimiento DATE NOT NULL,
+    nacionalidad VARCHAR(50) NOT NULL,
+    salario DECIMAL(10, 2) NOT NULL,
+    equipo_id INT,
+    FOREIGN KEY (equipo_id) REFERENCES Equipos(equipo_id)
+) COMMENT 'Contiene información básica de los entrenadores';
 
-CREATE TABLE HABILIDADESDEJUGADORES (
-		   JUGADORID   INT
-,          HABILIDADID INT
-,          NIVEL ENUM('BAJO', 'MEDIO', 'ALTO')
+-- Tabla de Partidos
+CREATE TABLE Partidos (
+    partido_id INT AUTO_INCREMENT PRIMARY KEY,
+    fecha DATE NOT NULL,
+    hora TIME NOT NULL,
+    estadio VARCHAR(100) NOT NULL,
+    equipo_local_id INT NOT NULL,
+    equipo_visitante_id INT NOT NULL,
+    resultado_local INT,
+    resultado_visitante INT,
+    FOREIGN KEY (equipo_local_id) REFERENCES Equipos(equipo_id),
+    FOREIGN KEY (equipo_visitante_id) REFERENCES Equipos(equipo_id)
+) COMMENT 'Contiene información de los partidos, equipos participantes y resultados';
 
-,          FOREIGN KEY (JUGADORID)               REFERENCES JUGADORES(JUGADORID) 
-,          FOREIGN KEY (HABILIDADID)             REFERENCES HABILIDADESFUTBOLISTICAS(HABILIDADID)
-,          PRIMARY KEY (JUGADORID, HABILIDADID)
-)
-COMMENT "EN ESTA ESTRUCTURA, CADA REGISTRO EN LA TABLA REPRESENTARA UNA HABILIDAD ESPECIFICA DE UN JUGADOR."
-;
+-- Tabla de Estadios
+CREATE TABLE Estadios (
+    estadio_id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    capacidad INT NOT NULL,
+    ciudad VARCHAR(100) NOT NULL,
+    equipo_id INT,
+    FOREIGN KEY (equipo_id) REFERENCES Equipos(equipo_id)
+) COMMENT 'Contiene información de los estadios';
 
-CREATE TABLE ENTRENADORES (
-		   ENTRENADORID       INT AUTO_INCREMENT PRIMARY KEY
-,          NOMBRE             VARCHAR(50)
-,          APELLIDO           VARCHAR(50)
-,          POSICION           VARCHAR(50)
-,          FECHANACIMIENTO    DATE
-,          NACIONALIDAD       VARCHAR(50)
-,          SALARIO            DECIMAL(10, 2)
-)  
-COMMENT "CONTIENE INFORMACION BASICA DE LOS ENTRENADORES"
-;
-  
-CREATE TABLE EQUIPOS (
-		   EQUIPOID           INT AUTO_INCREMENT PRIMARY KEY
-,          NOMBRE             VARCHAR(100) DEFAULT 'BASTARD_MUNCHEN'
-,          PAIS               VARCHAR(100) DEFAULT 'ALEMANIA'
-,          ESTADIO            VARCHAR(100) DEFAULT 'BLUELOCK_BASTARD'
-)
-COMMENT "EQUIPO, NOMBRE DEL CLUB Y DATOS BASICOS"
-;
-  
-CREATE TABLE PARTIDOS (
-		   PARTIDOID          INT AUTO_INCREMENT PRIMARY KEY
-,          FECHA              DATE
-,          HORA               TIME
-,		   ESTADIO            VARCHAR(100)
-,          EQUIPOVISITANTEID  INT
-,          RESULTADOLOCAL     INT
-,		   RESULTADOVISITANTE INT
-	
-,          FOREIGN KEY (EQUIPOVISITANTEID)       REFERENCES EQUIPOS(EQUIPOID)
-) 
-COMMENT "PARTIDOS QUE SE JUGARON, CONTRA QUIEN Y SUS RESULTADOS" 
-;
+-- Tabla de Habilidades
+CREATE TABLE Habilidades (
+    habilidad_id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    descripcion VARCHAR(255)
+) COMMENT 'Contiene información sobre las habilidades de los jugadores';
 
-CREATE TABLE COMENTARIOSOBSERVACIONES (
-		   COMENTARIOID       INT AUTO_INCREMENT PRIMARY KEY
-,          JUGADORID          INT
-,          DESCRIPCION        TEXT
-,          FECHACOMENTARIO    DATE
+-- Tabla de Comentarios y Observaciones
+CREATE TABLE ComentariosObservaciones (
+    comentario_id INT AUTO_INCREMENT PRIMARY KEY,
+    jugador_id INT NOT NULL,
+    descripcion TEXT NOT NULL,
+    fecha_comentario DATE NOT NULL,
+    FOREIGN KEY (jugador_id) REFERENCES Jugadores(jugador_id)
+) COMMENT 'Contiene comentarios y observaciones sobre los jugadores';
 
-,          FOREIGN KEY (JUGADORID)              REFERENCES JUGADORES(JUGADORID)
-)
-COMMENT "TABLA DE COMENTARIOS Y OBSERVACIONES"
-;
+-- Tabla intermedia para relacionar Jugadores con Habilidades
+CREATE TABLE HabilidadesJugadores (
+    jugador_id INT NOT NULL,
+    habilidad_id INT NOT NULL,
+    nivel ENUM('BAJO', 'MEDIO', 'ALTO'),
+    PRIMARY KEY (jugador_id, habilidad_id),
+    FOREIGN KEY (jugador_id) REFERENCES Jugadores(jugador_id),
+    FOREIGN KEY (habilidad_id) REFERENCES Habilidades(habilidad_id)
+) COMMENT 'Relaciona jugadores con sus habilidades y niveles';
 
-CREATE TABLE LESIONES (
-    LESIONID        INT AUTO_INCREMENT PRIMARY KEY,
-    JUGADORID       INT,
-    FECHA_LESION    DATE,
-    GRAVEDAD        VARCHAR(50),
-    TIPO_LESION     VARCHAR(100),
-    RECUPERACION_ESTIMADA INT,  -- en días
-    
-    FOREIGN KEY (JUGADORID) REFERENCES JUGADORES(JUGADORID)
-);
+-- Tabla de Patrocinadores
+CREATE TABLE Patrocinadores (
+    patrocinador_id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    industria VARCHAR(100) NOT NULL
+) COMMENT 'Contiene información de los patrocinadores';
 
-CREATE TABLE CONTRATOS_JUGADORES (
-    CONTRATOID              INT AUTO_INCREMENT PRIMARY KEY,
-    JUGADORID               INT,
-    FECHA_INICIO            DATE,
-    FECHA_FIN               DATE,
-    SALARIO                 DECIMAL(10, 2),
-    CLAUSULAS               TEXT,
-   
-   FOREIGN KEY (JUGADORID) REFERENCES JUGADORES(JUGADORID)
-);
+-- Tabla de Contratos
+CREATE TABLE Contratos (
+    contrato_id INT AUTO_INCREMENT PRIMARY KEY,
+    jugador_id INT NOT NULL,
+    equipo_id INT NOT NULL,
+    patrocinador_id INT,
+    fecha_inicio DATE NOT NULL,
+    fecha_fin DATE NOT NULL,
+    salario DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (jugador_id) REFERENCES Jugadores(jugador_id),
+    FOREIGN KEY (equipo_id) REFERENCES Equipos(equipo_id),
+    FOREIGN KEY (patrocinador_id) REFERENCES Patrocinadores(patrocinador_id)
+) COMMENT 'Contiene información de los contratos de jugadores';
 
-CREATE TABLE EQUIPOS_RIVALES (
-    RIVALID               INT AUTO_INCREMENT PRIMARY KEY,
-    NOMBRE_EQUIPO         VARCHAR(100),
-    LIGA                  VARCHAR(100),
-    CIUDAD                VARCHAR(100)
-);
-
-CREATE TABLE GOLES_MARCADOS (
-    GOLESID            INT AUTO_INCREMENT PRIMARY KEY,
-    PARTIDOID          INT,
-    JUGADORID          INT,
-    MINUTO             INT,
-    
-    FOREIGN KEY (PARTIDOID) REFERENCES PARTIDOS(PARTIDOID),
-    
-    FOREIGN KEY (JUGADORID) REFERENCES JUGADORES(JUGADORID)
-);
-
-CREATE TABLE PALMARES_EQUIPO (
-    PALMARESID           INT AUTO_INCREMENT PRIMARY KEY,
-    NOMBRE_TROFEO        VARCHAR(100),
-    ANIO                 INT,
-    COMPETICION          VARCHAR(100),
-    EQUIPOID             INT,
-    
-    FOREIGN KEY (EQUIPOID) REFERENCES EQUIPOS(EQUIPOID)
-);
-
-CREATE TABLE ESTADISTICAS_PARTIDOS (
-    ESTADISTICASID            INT AUTO_INCREMENT PRIMARY KEY,
-    PARTIDOID                 INT,
-    POSESION_BALON            DECIMAL(5, 2),  -- Porcentaje de posesión de balón
-    DISPAROS_PUERTA           INT,
-    TARJETAS_AMARILLAS        INT,
-    TARJETAS_ROJAS            INT,
-    GOLES_LOCAL               INT,
-    GOLES_VISITANTE           INT,
-    
-    FOREIGN KEY (PARTIDOID) REFERENCES PARTIDOS(PARTIDOID)
-);
-
-CREATE TABLE HISTORIAL_CAMBIOS_JUGADORES (
-    CAMBIOID                        INT AUTO_INCREMENT PRIMARY KEY,
-    JUGADORID                       INT,
-    FECHA_CAMBIO                    DATE,
-    TIPO_CAMBIO                     VARCHAR(100),  -- Transferencia, cesión, renovación de contrato, etc.
-    DETALLES_CAMBIO                 TEXT,
-    
-    FOREIGN KEY (JUGADORID) REFERENCES JUGADORES(JUGADORID)
-);
+-- Tabla de Títulos
+CREATE TABLE Titulos (
+    titulo_id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    anio INT NOT NULL,
+    equipo_id INT NOT NULL,
+    FOREIGN KEY (equipo_id) REFERENCES Equipos(equipo_id)
+) COMMENT 'Contiene información de los títulos ganados por los equipos';
 
 
-INSERT INTO JUGADORES (
-    NOMBRE,
-    APELLIDO,
-    POSICION,
-    FECHANACIMIENTO,
-    NACIONALIDAD,
-    SALARIO,
-    HABILIDADESDESTACADAS
-) VALUES (
-    'Michael',
-    'Kaiser',
-    'Delantero',
-    '1998-04-27',
-    'Alemania',
-    1832400.00,  
-    'Metavisión, Movimientos sin balón, Potencia de tiro, Consciencia Espacial, "Impacto Kaiser", Ojo del Depredador'
-    
-), (
-    'Alexis',
-    'Ness',
-    'Mediapunta',
-    '2000-10-27',
-    'Alemania',
-    305350.00,  
-    'Flexibilidad, Regate, Pase'
-    
-), (
-    'Yoichi',
-    'Isagi',
-    'Delantero',
-    '1999-04-01',
-    'Japon',
-    915900.00,  
-    'Conciencia espacial, Tiro directo, Movimiento sin balón, Reflejos, Metavisión, Estado de Flow'
-    
-), (
-    'Rensuke',
-    'Kunigami',
-    'Delantero',
-    '1999-03-11',
-    'Japon',
-    305350.00,  
-    'Flexibilidad, Regate, Pase'
-    
-), (
-    'Yo',
-    'Hiori',
-    'Lateral Derecho',
-    '1999-10-27',
-    'Alemania',
-    305350.00,  
-    'Visión, Control de balón, Pase, Reflejos, Metavisión, Estado de Flow'
-    
-), (
-    'Kenyu',
-    'Yukimiya',
-    'Delantero Extremo',
-    '1998-04-28',
-    'Japon',
-    219888.00,  
-    'Regate, Tiro con efecto, Estado de Flow'
-     
-), (
-    'Gin',
-    'Gagamaru',
-    'Portero',
-    '1999-01-02',
-    'Japon',
-    194456.00,  
-    'Reacción explosiva, Flexibilidad'
+-- Tabla de Aficionados
+CREATE TABLE Aficionados (
+    aficionado_id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    apellido VARCHAR(100) NOT NULL,
+    fecha_nacimiento DATE NOT NULL,
+    equipo_favorito INT NOT NULL,
+    FOREIGN KEY (equipo_favorito) REFERENCES Equipos(equipo_id)
+) COMMENT 'Contiene información de los aficionados';
 
-);
+-- Tabla de Médicos
+CREATE TABLE Medicos (
+    medico_id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    apellido VARCHAR(100) NOT NULL,
+    especialidad VARCHAR(100) NOT NULL,
+    equipo_id INT NOT NULL,
+    FOREIGN KEY (equipo_id) REFERENCES Equipos(equipo_id)
+) COMMENT 'Contiene información de los médicos de los equipos';
 
-INSERT INTO SUPLENTES (
-    NOMBRE,
-    APELLIDO,
-    POSICION,
-    FECHANACIMIENTO,
-    NACIONALIDAD,
-    SALARIO,
-    HABILIDADESDESTACADAS
-) VALUES (
-    'Gurimu',
-    'Igarashi',
-    'Delantero',
-    '2001-07-06',
-    'Japon',
-    000.00,  
-    'Zambullidas, Simulación de faltas'
-    
-), (
-    'Jim',
-    'Kiyora',
-    'Lateral Izquierdo',
-    '1999-09-02',
-    'Japon',
-    000.00,  
-    'Regate'
-    
-), (
-    'Tappei',
-    'Neru',
-    'Lateral Derecho',
-    '1999-08-31',
-    'Japon',
-    000.00,  
-    'Aceleracion'
-    
-);
-
-INSERT INTO ENTRENADORES (
-     NOMBRE
-    ,APELLIDO
-    ,POSICION
-    ,FECHANACIMIENTO
-    ,NACIONALIDAD
-    ,SALARIO
-    
-) VALUES
-
- (
-    'Noel'
-    ,'Noa'
-    ,'Entrenador/Delantero'
-    ,'1971-04-02'
-    ,'Paises Bajos'
-    ,15000000.00
-    
-),
-
- (
-    'Jurgen',
-    'Klopp',
-    'Entrenador',
-    '1967-06-16',
-    'Alemania',
-    12000000.00
-);
-
-INSERT INTO EQUIPOS (
-    NOMBRE,
-    PAIS,
-    ESTADIO
-    
-) VALUES (
-    'Real Madrid',
-    'España',
-    'Santiago Bernabéu'
-), (
-    'FC Barcelona',
-    'España',
-    'Camp Nou'
-);
-
-INSERT INTO PARTIDOS (
-    FECHA,
-    HORA,
-    ESTADIO,
-    EQUIPOVISITANTEID,
-    RESULTADOLOCAL,
-    RESULTADOVISITANTE
-    
-) VALUES (
-    '2024-04-02',
-    '17:00:00',
-    'Estadio ABC',
-    2,  -- EQUIPOVISITANTEID
-    1,  -- RESULTADOLOCAL
-    1   -- RESULTADOVISITANTE
-    
-);
-    
-    INSERT INTO COMENTARIOSOBSERVACIONES (
-    JUGADORID,
-    DESCRIPCION,
-    FECHACOMENTARIO
-    
-) VALUES (
-    1,  -- JUGADORID
-    'Buen desempeño en el último partido.',
-    '2024-04-02'  -- FECHACOMENTARIO
-);
-    
-    
--- CORRECIONES 28/03/2024
-    
-ALTER TABLE JUGADORES
-          ADD COLUMN EQUIPOID INT,
-          ADD FOREIGN KEY (EQUIPOID)                    REFERENCES EQUIPOS(EQUIPOID);
-
-ALTER TABLE SUPLENTES
-          ADD COLUMN EQUIPOID INT,
-          ADD FOREIGN KEY (EQUIPOID)                    REFERENCES EQUIPOS(EQUIPOID);
-
-ALTER TABLE ENTRENADORES
-          ADD COLUMN EQUIPOID INT,
-          ADD FOREIGN KEY (EQUIPOID)                    REFERENCES EQUIPOS(EQUIPOID);
-          
-          SELECT NOMBRE, APELLIDO, POSICION, HABILIDADESDESTACADAS, SALARIO
-          FROM JugadoresDestacados;
-
-          SELECT POSICION, COUNT(*) AS TotalJugadores
-          FROM JugadoresPorPosicion
-          GROUP BY POSICION;
-
-          SELECT NOMBRE, APELLIDO, POSICION, NACIONALIDAD, SALARIO
-          FROM DetallesEntrenadores;
-
-## SEGUNDA ENTREGA DEL PROYECTO FINAL
-## COMISION 53180
-## ALAN DIAZ
-
-## MODIFICADO 24/4/2024 15:21HS
-
-
-
-    
+-- Tabla de Lesiones
+CREATE TABLE Lesiones (
+    lesion_id INT AUTO_INCREMENT PRIMARY KEY,
+    jugador_id INT NOT NULL,
+    tipo_lesion VARCHAR(100) NOT NULL,
+    fecha_inicio DATE NOT NULL,
+    fecha_fin DATE,
+    FOREIGN KEY (jugador_id) REFERENCES Jugadores(jugador_id)
+) COMMENT 'Contiene información de las lesiones de los jugadores';
 
 
 

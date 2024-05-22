@@ -50,6 +50,11 @@ test-db:
 		echo "----------------------------------------------"; \
 	done
 
+backup-db:
+		@echo "Creating database backup..."
+		docker exec -i $(SERVICE_NAME) mysqldump -u root -p$(PASSWORD) $(DATABASE_NAME) > backup.sql
+		@echo "Database backup created as backup.sql"
+
 
 access-db:
 	@echo "Access to db-client"

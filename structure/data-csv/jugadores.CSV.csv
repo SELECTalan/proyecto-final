@@ -1,0 +1,8 @@
+jugador_id,Nombre,Apellido,Posicion,Habilidades,Destacadas,FechaNacimiento,Nacionalidad,Salario
+1,Michael,Kaiser,Delantero,"Metavisión, Movimientos sin balón, Potencia de tiro, Consciencia Espacial, Impacto Kaiser, Ojo del Depredador",1,1998-04-27,Alemania,1832400
+2,Alexis,Ness,Mediapunta,"Flexibilidad, Regate, Pase",1,2000-10-27,Alemania,305350
+3,Yoichi,Isagi,Delantero,"Conciencia espacial, Tiro directo, Movimiento sin balón, Reflejos, Metavisión, Estado de Flow",2,1999-04-01,Japon,915900
+4,Rensuke,Kunigami,Delantero,"Flexibilidad, Regate, Pase",3,1999-03-11,Japon,305350
+5,Yoichi,Hiori,Lateral Derecho,"Visión, Control de balón, Pase, Reflejos, Metavisión, Estado de Flow",2,1999-10-27,Alemania,305350
+6,Kenyu,Yukimiya,Delantero Extremo,"Regate, Tiro con efecto, Estado de Flow",5,1998-04-28,Japon,219888
+7,Gin,Gagamaru,Portero,"Reacción explosiva, Flexibilidad",1,1999-01-02,Japon,194456first_name

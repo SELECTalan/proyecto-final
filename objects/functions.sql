@@ -1,26 +1,34 @@
 USE                      equipo_de_futbol_bastardmunchen;
 
-SELECT * FROM JugadoresDestacados;
-SELECT * FROM EntrenadoresPorNacionalidad;
-SELECT * FROM PartidosPendientes;
-
+-- Calcular la Duración de una Lesión en Días
 DELIMITER $$
-CREATE FUNCTION CalcularEdad(FECHANACIMIENTO DATE)
+CREATE FUNCTION CalcularDuracionLesion(lesion_id INT)
 RETURNS INT
 DETERMINISTIC
 BEGIN
-    RETURN YEAR(CURDATE()) - YEAR(FECHANACIMIENTO) - (RIGHT(CURDATE(), 5) < RIGHT(FECHANACIMIENTO, 5));
+    DECLARE duracion INT;
+    SELECT DATEDIFF(IFNULL(fecha_fin, CURDATE()), fecha_inicio) INTO duracion
+    FROM Lesiones
+    WHERE lesion_id = lesion_id;
+    RETURN duracion;
 END $$
 DELIMITER ;
 
+-- Obtener el Salario Total de un Equipo
+DELIMITER $$
+
+CREATE FUNCTION SalarioTotalEquipo(equipo_id INT)
+RETURNS DECIMAL(10, 2)
+DETERMINISTIC
+BEGIN
+    DECLARE total DECIMAL(10, 2);
+    SELECT SUM(salario) INTO total
+    FROM Jugadores
+    WHERE equipo_id = equipo_id;
+    RETURN total;
+END $$
+DELIMITER ;
+
+SELECT SalarioTotalEquipo(1) AS SalarioTotal;
 
 DELIMITER $$
-CREATE FUNCTION SalarioPromedioEquipo(EQUIPOID INT)
-RETURNS DECIMAL(10,2)
-READS SQL DATA
-BEGIN
-    DECLARE promedio DECIMAL(10,2);
-    SELECT AVG(SALARIO) INTO promedio FROM JUGADORES WHERE EQUIPOID = EQUIPOID;
-    RETURN promedio;
-END $$
-DELIMITER ;

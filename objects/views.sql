@@ -1,61 +1,72 @@
 USE                      equipo_de_futbol_bastardmunchen;
 
-CREATE VIEW vista_jugadores_destacados AS
-SELECT JUGADORID             
-, NOMBRE               
-, APELLIDO                 
-, POSICION              
-, HABILIDADESDESTACADAS 
-, FECHANACIMIENTO      
-, NACIONALIDAD         
-, SALARIO
-FROM jugadores
-WHERE salario > 1000000;
+-- Vista para jugadores destacados (con salario superior a 1,000,000)
+CREATE VIEW JugadoresDestacados AS
+SELECT 
+    jugador_id,
+    nombre,
+    apellido,
+    posicion,
+    habilidades_destacadas,
+    salario
+FROM 
+    Jugadores
+WHERE 
+    salario > 1000000;
 
+-- Vista para entrenadores agrupados por nacionalidad
 CREATE VIEW EntrenadoresPorNacionalidad AS
 SELECT 
-    NACIONALIDAD,
-    COUNT(*) AS TotalEntrenadores
+    nacionalidad,
+    COUNT(*) AS total_entrenadores
 FROM 
-    ENTRENADORES
+    Entrenadores
 GROUP BY 
-    NACIONALIDAD;
-    #Esta vista podría mostrar cuántos entrenadores hay de cada nacionalidad.
+    nacionalidad;
 
+-- Vista para partidos pendientes
 CREATE VIEW PartidosPendientes AS
 SELECT 
-    PARTIDOID,
-    FECHA,
-    HORA,
-    ESTADIO,
-    EQUIPOVISITANTEID,
-    RESULTADOLOCAL,
-    RESULTADOVISITANTE
+    partido_id,
+    fecha,
+    hora,
+    estadio,
+    equipo_local_id,
+    equipo_visitante_id,
+    resultado_local,
+    resultado_visitante
 FROM 
-    PARTIDOS
+    Partidos
 WHERE 
-    FECHA > CURDATE();
-    #Esta vista podría mostrar los partidos programados para el futuro que aún no se han jugado.
-    
-    CREATE VIEW Vista_Equipos_Entrenadores AS
-SELECT 
-    E.NOMBRE AS NOMBRE_EQUIPO,
-    E.PAIS,
-    E.ESTADIO,
-    ET.NOMBRE AS NOMBRE_ENTRENADOR,
-    ET.APELLIDO AS APELLIDO_ENTRENADOR,
-    ET.NACIONALIDAD AS NACIONALIDAD_ENTRENADOR
-FROM 
-    EQUIPOS E
-JOIN 
-    ENTRENADORES ET ON E.EQUIPOID = ET.EQUIPOID;
+    fecha > CURDATE();
 
-CREATE VIEW Vista_Jugadores_Posicion_Nacionalidad AS
+-- Vista para jugadores con lesiones actuales
+CREATE VIEW JugadoresConLesionesActuales AS
 SELECT 
-    POSICION,
-    NACIONALIDAD,
-    COUNT(*) AS NUM_JUGADORES
+    j.jugador_id,
+    j.nombre,
+    j.apellido,
+    l.tipo_lesion,
+    l.fecha_inicio,
+    l.fecha_fin
 FROM 
-    JUGADORES
-GROUP BY 
-    POSICION, NACIONALIDAD;
+    Jugadores j
+JOIN 
+    Lesiones l ON j.jugador_id = l.jugador_id
+WHERE 
+    l.fecha_fin IS NULL OR l.fecha_fin > CURDATE();
+
+-- Vista para patrocinadores y jugadores
+CREATE VIEW PatrocinadoresYJugadores AS
+SELECT 
+    p.nombre AS patrocinador,
+    j.nombre AS jugador_nombre,
+    j.apellido AS jugador_apellido,
+    c.fecha_inicio,
+    c.fecha_fin
+FROM 
+    Patrocinadores p
+JOIN 
+    Contratos c ON p.patrocinador_id = c.patrocinador_id
+JOIN 
+    Jugadores j ON c.jugador_id = j.jugador_id;
