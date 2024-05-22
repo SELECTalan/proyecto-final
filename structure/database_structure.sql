@@ -97,6 +97,80 @@ CREATE TABLE COMENTARIOSOBSERVACIONES (
 COMMENT "TABLA DE COMENTARIOS Y OBSERVACIONES"
 ;
 
+CREATE TABLE LESIONES (
+    LESIONID        INT AUTO_INCREMENT PRIMARY KEY,
+    JUGADORID       INT,
+    FECHA_LESION    DATE,
+    GRAVEDAD        VARCHAR(50),
+    TIPO_LESION     VARCHAR(100),
+    RECUPERACION_ESTIMADA INT,  -- en días
+    
+    FOREIGN KEY (JUGADORID) REFERENCES JUGADORES(JUGADORID)
+);
+
+CREATE TABLE CONTRATOS_JUGADORES (
+    CONTRATOID              INT AUTO_INCREMENT PRIMARY KEY,
+    JUGADORID               INT,
+    FECHA_INICIO            DATE,
+    FECHA_FIN               DATE,
+    SALARIO                 DECIMAL(10, 2),
+    CLAUSULAS               TEXT,
+   
+   FOREIGN KEY (JUGADORID) REFERENCES JUGADORES(JUGADORID)
+);
+
+CREATE TABLE EQUIPOS_RIVALES (
+    RIVALID               INT AUTO_INCREMENT PRIMARY KEY,
+    NOMBRE_EQUIPO         VARCHAR(100),
+    LIGA                  VARCHAR(100),
+    CIUDAD                VARCHAR(100)
+);
+
+CREATE TABLE GOLES_MARCADOS (
+    GOLESID            INT AUTO_INCREMENT PRIMARY KEY,
+    PARTIDOID          INT,
+    JUGADORID          INT,
+    MINUTO             INT,
+    
+    FOREIGN KEY (PARTIDOID) REFERENCES PARTIDOS(PARTIDOID),
+    
+    FOREIGN KEY (JUGADORID) REFERENCES JUGADORES(JUGADORID)
+);
+
+CREATE TABLE PALMARES_EQUIPO (
+    PALMARESID           INT AUTO_INCREMENT PRIMARY KEY,
+    NOMBRE_TROFEO        VARCHAR(100),
+    ANIO                 INT,
+    COMPETICION          VARCHAR(100),
+    EQUIPOID             INT,
+    
+    FOREIGN KEY (EQUIPOID) REFERENCES EQUIPOS(EQUIPOID)
+);
+
+CREATE TABLE ESTADISTICAS_PARTIDOS (
+    ESTADISTICASID            INT AUTO_INCREMENT PRIMARY KEY,
+    PARTIDOID                 INT,
+    POSESION_BALON            DECIMAL(5, 2),  -- Porcentaje de posesión de balón
+    DISPAROS_PUERTA           INT,
+    TARJETAS_AMARILLAS        INT,
+    TARJETAS_ROJAS            INT,
+    GOLES_LOCAL               INT,
+    GOLES_VISITANTE           INT,
+    
+    FOREIGN KEY (PARTIDOID) REFERENCES PARTIDOS(PARTIDOID)
+);
+
+CREATE TABLE HISTORIAL_CAMBIOS_JUGADORES (
+    CAMBIOID                        INT AUTO_INCREMENT PRIMARY KEY,
+    JUGADORID                       INT,
+    FECHA_CAMBIO                    DATE,
+    TIPO_CAMBIO                     VARCHAR(100),  -- Transferencia, cesión, renovación de contrato, etc.
+    DETALLES_CAMBIO                 TEXT,
+    
+    FOREIGN KEY (JUGADORID) REFERENCES JUGADORES(JUGADORID)
+);
+
+
 INSERT INTO JUGADORES (
     NOMBRE,
     APELLIDO,
@@ -311,149 +385,11 @@ ALTER TABLE ENTRENADORES
 
 ## MODIFICADO 24/4/2024 15:21HS
 
-CREATE VIEW JugadoresDestacados AS
-SELECT 
-    JUGADORID,
-    NOMBRE,
-    APELLIDO,
-    POSICION,
-    HABILIDADESDESTACADAS,
-    SALARIO
-FROM 
-    JUGADORES
-WHERE 
-    SALARIO > 1000000;
-    #Esta vista podría mostrar información sobre los jugadores cuyas habilidades destacadas cumplen ciertos criterios.
 
-CREATE VIEW EntrenadoresPorNacionalidad AS
-SELECT 
-    NACIONALIDAD,
-    COUNT(*) AS TotalEntrenadores
-FROM 
-    ENTRENADORES
-GROUP BY 
-    NACIONALIDAD;
-    #Esta vista podría mostrar cuántos entrenadores hay de cada nacionalidad.
 
-CREATE VIEW PartidosPendientes AS
-SELECT 
-    PARTIDOID,
-    FECHA,
-    HORA,
-    ESTADIO,
-    EQUIPOVISITANTEID,
-    RESULTADOLOCAL,
-    RESULTADOVISITANTE
-FROM 
-    PARTIDOS
-WHERE 
-    FECHA > CURDATE();
-    #Esta vista podría mostrar los partidos programados para el futuro que aún no se han jugado.
     
-SELECT * FROM JugadoresDestacados;
-SELECT * FROM EntrenadoresPorNacionalidad;
-SELECT * FROM PartidosPendientes;
-
-DELIMITER $$
-CREATE FUNCTION CalcularEdad(FECHANACIMIENTO DATE)
-RETURNS INT
-BEGIN
-    RETURN YEAR(CURDATE()) - YEAR(FECHANACIMIENTO) - (RIGHT(CURDATE(), 5) < RIGHT(FECHANACIMIENTO, 5));
-END $$
-DELIMITER ;
-
-
-DELIMITER $$
-CREATE FUNCTION SalarioPromedioEquipo(EQUIPOID INT)
-RETURNS DECIMAL(10,2)
-READS SQL DATA
-BEGIN
-    DECLARE promedio DECIMAL(10,2);
-    SELECT AVG(SALARIO) INTO promedio FROM JUGADORES WHERE EQUIPOID = EQUIPOID;
-    RETURN promedio;
-END $$
-DELIMITER ;
-
-DELIMITER $$
-
-
-CREATE PROCEDURE AgregarJugador(
-    IN p_nombre VARCHAR(50),
-    IN p_apellido VARCHAR(50),
-    IN p_posicion VARCHAR(50),
-    IN p_fecha_nacimiento DATE,
-    IN p_nacionalidad VARCHAR(50),
-    IN p_salario DECIMAL(10,2)
-)
-BEGIN
-    INSERT INTO JUGADORES (NOMBRE, APELLIDO, POSICION, FECHANACIMIENTO, NACIONALIDAD, SALARIO)
-    VALUES (p_nombre, p_apellido, p_posicion, p_fecha_nacimiento, p_nacionalidad, p_salario);
-END $$
-DELIMITER ;
-## Descripcion: Este procedimiento almacenado permite agregar un nuevo jugador a la base de datos de jugadores de fútbol.
-## Objetivo/beneficio: Simplifica el proceso de inserción de nuevos jugadores al encapsular la lógica de inserción en un procedimiento almacenado reutilizable.
-## Tablas que interactúa: Interactúa principalmente con la tabla JUGADORES, donde se almacenan los datos de los jugadores de fútbol.
 
 
 
 
-DROP PROCEDURE IF EXISTS ActualizarSalarioJugador;
 
-DELIMITER $$
-CREATE PROCEDURE ActualizarSalarioJugador(
-    IN p_jugador_id INT,
-    IN p_nuevo_salario DECIMAL(10,2)
-)
-BEGIN
-    UPDATE JUGADORES
-    SET SALARIO = p_nuevo_salario
-    WHERE JUGADORID = p_jugador_id;
-END $$
-DELIMITER ;
-## Descripción: Este procedimiento almacenado permite actualizar el salario de un jugador existente en la base de datos.
-## Objetivo/beneficio: Facilita la actualización de información de salario de los jugadores de fútbol al encapsular la lógica de actualización en un procedimiento almacenado.
-## Tablas que interactúa: Interactúa principalmente con la tabla JUGADORES, donde se almacenan los datos de los jugadores de fútbol.
-
-
-
-DELIMITER $$
-CREATE PROCEDURE EliminarJugador(
-    IN p_jugador_id INT
-)
-BEGIN
-    DELETE FROM JUGADORES WHERE JUGADORID = p_jugador_id;
-END $$
-DELIMITER ;
-## Descripción: Este procedimiento almacenado permite eliminar un jugador de la base de datos.
-## Objetivo/beneficio: Simplifica la eliminación de jugadores de fútbol al encapsular la lógica de eliminación en un procedimiento almacenado.
-## Tablas que interactúa: Interactúa principalmente con la tabla JUGADORES, donde se almacenan los datos de los jugadores de fútbol.
-
-CALL AgregarJugador('Lionel', 'Messi', 'Delantero', '1987-06-24', 'Argentina', 1000000.00);
-
-CALL ActualizarSalarioJugador(1, 1500000.00);
-
-CALL EliminarJugador(2);
-
-DELIMITER $$
-CREATE TRIGGER Audit_Jugadores
-AFTER INSERT ON JUGADORES
-FOR EACH ROW
-BEGIN
-    INSERT INTO Auditoria_Jugadores (accion, jugador_id, fecha)
-    VALUES ('INSERCION', NEW.JUGADORID, NOW());
-END $$
-DELIMITER ;
- 
-DELIMITER $$
-CREATE TRIGGER Limite_Salario
-BEFORE INSERT ON JUGADORES
-FOR EACH ROW
-BEGIN
-    DECLARE salario_maximo DECIMAL(10,2);
-    SET salario_maximo = 10000000.00;
-    
-    IF NEW.SALARIO > salario_maximo THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El salario excede el límite permitido';
-    END IF;
-END $$
-DELIMITER ;
